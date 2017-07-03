@@ -2,7 +2,7 @@ function imData=bigread2(path_to_file,sframe,num2read)
 %reads tiff files in Matlab bigger than 4GB, allows reading from sframe to sframe+num2read-1 frames of the tiff - in other words, you can read page 200-300 without rading in from page 1.
 %based on a partial solution posted on Matlab Central (http://www.mathworks.com/matlabcentral/answers/108021-matlab-only-opens-first-frame-of-multi-page-tiff-stack)
 %Darcy Peterka 2014, v1.0
-%Darcy Peterka 2014, v1.1 
+%Darcy Peterka 2014, v1.1
 %Darcy Peterka 2016, v1.2(bugs to dp2403@columbia.edu)
 %Eftychios Pnevmatikakis 2016, v1.3 (added hdf5 support)
 %Program checks for bit depth, whether int or float, and byte order.  Assumes uncompressed, non-negative (i.e. unsigned) data.
@@ -16,7 +16,7 @@ function imData=bigread2(path_to_file,sframe,num2read)
 [~,~,ext] = fileparts(path_to_file);
 
 if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
-    
+
     %get image info
     info = imfinfo(path_to_file);
 
@@ -28,10 +28,10 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     %     numFramesStr = regexp(he, 'images=(\d*)', 'tokens');
     %     numFrames = str2double(numFramesStr{1}{1});
     % end
-    blah=size(info);
+    blah=size(info);%Nadav: Why not modulate this function by creating a small tool to count frames?
     numFrames= blah(1);
 
-    num_tot_frames=numFrames;
+    num_tot_frames=numFrames;% why use another variable?
 
     %should add more error checking for args... very ugly code below.  works
     %for me after midnight though...
@@ -66,8 +66,8 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     bo=strcmp(he,'big-endian');
     if (bd==64)
         form='double';
-    elseif(bd==32)
-        form='single'
+    elseif (bd==32)
+        form='single';
     elseif (bd==16)
         form='uint16';
     elseif (bd==8)
@@ -83,7 +83,7 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     he=info.StripOffsets;
     %finds the offset of each strip in the movie.  Image does not have to have
     %uniform strips, but needs uniform bytes per strip/row.
-    idss=max(size(info(1).StripOffsets));
+    idss=max(size(info(1).StripOffsets));%% - nadav: why is he taking the offset from the first image only
     ofds=zeros(numFrames);
     for i=1:numFrames
         ofds(i)=info(i).StripOffsets(1);
@@ -152,7 +152,7 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
             end
     end
             %ieee-le.l64
-        
+
         imData=cell2mat(imData);
         imData=reshape(imData,[he_h*mul,he_w,framenum]);
         fclose(fp);
