@@ -80,14 +80,25 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     % The StripOffsets field provides the offset to the first strip. Based on
     % the INFO for this file, each image consists of 1 strip.
 
-    he=info.StripOffsets;
-    %finds the offset of each strip in the movie.  Image does not have to have
+    he=info.StripOffsets;%nadav:seems to return only one number instead of an 1Xn array.
+    %Epnev:finds the offset of each strip in the movie.  Image does not have to have
     %uniform strips, but needs uniform bytes per strip/row.
-    idss=max(size(info(1).StripOffsets));%% - nadav: why is he taking the offset from the first image only
-    ofds=zeros(numFrames);
+
+    idss=max(size(info(1).StripOffsets));%% - nadav: why is he taking the offset from the first image only?
+    %nadav:seems this function is ment to check the number of strips per frame, assuming that all frames has the same number of strips.
+
+    ofds=zeros(numFrames);%nadav:Creates an unnecesary 2000X2000 matrix, while in practice only a 2000X1 is requiered.
     for i=1:numFrames
         ofds(i)=info(i).StripOffsets(1);
         %ofds(i)
+        %nadav: This loop fills ofds matrix with the offset of the first strip in the frame.
+        %%nadav: It seems that the original reasoning for thisfor loop was to allow
+        %%for images with different number of stripes in each frame.
+        %%However, the variable 'idss' is computed with the assumption that the number
+        %%of strips per frame is uniform.
+        %%In our implementation, should we choose to assume that the number of stripes
+        %%per frame is uniform, the shorthand version ofds = [info.StripOffsets] would be faster
+        %%and more elegant.
     end
     sframemsg = ['Reading from frame ',num2str(sframe),' to frame ',num2str(num2read+sframe-1),' of ',num2str(num_tot_frames), ' total frames'];
     disp(sframemsg)
@@ -103,11 +114,11 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     % mul is set to > 1 for debugging only
     mul=1;
     if strcmpi(form,'uint16') || strcmpi(form,'uint8')
-        if(bo)
+        if bo
             for cnt = sframe:lastframe
                 %cnt;
                 fseek(fp,ofds(cnt),'bof');
-                tmp1 = fread(fp, [he_w he_h*mul], form, 0, 'ieee-be')';
+                tmp1 = fread(fp, [he_w he_h*mul], form, 0, 'ieee-be')';%nadav:why not use the fread argument 'skip' instead of fseek.
                 imData{cnt-sframe+1}=cast(tmp1,form);
             end
         else
@@ -118,6 +129,15 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
                 imData{cnt-sframe+1}=cast(tmp1,form);
             end
         end
+        %Nadav: This code is very redundant. Suggested implementation is:
+              %for cnt = 1:lastframe-sframe
+              %   tmp1 = fread(fp, [he_w he_h*mul], form, ofds(cnt), info.ByteOrder)';
+                              %fileID , %dimensions of frame, %BitDepth, %offset, %ByteOrder
+              %   imData{cnt}=cast(tmp1,form);
+              %end
+              %better implementation at the end of the if tree.
+
+
     elseif strcmpi(form,'single')
         if(bo)
             for cnt = sframe:lastframe
@@ -151,6 +171,19 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
                 end
             end
     end
+
+    %This whole if tree is very redundant because a simple if statment setting form to single in case
+    %it is a double, would have solved this
+    %Suggested implementation:
+    %if strcmpi(form,'double')
+    %  form = 'single'
+    %end
+    %for cnt = 1:lastframe-sframe
+    %   tmp1 = fread(fp, [he_w he_h*mul], form, ofds(cnt), info.ByteOrder)';
+                    %fileID , %dimensions of frame, %BitDepth, %offset, %ByteOrder
+    %   imData{cnt}=cast(tmp1,form);
+    %end
+
             %ieee-le.l64
 
         imData=cell2mat(imData);
