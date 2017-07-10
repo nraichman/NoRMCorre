@@ -177,6 +177,7 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     %Suggested implementation:
     %if strcmpi(form,'double')
     %  form = 'single'
+    % ByteOrder = ieee-be.l64;
     %end
     %for cnt = 1:lastframe-sframe
     %   tmp1 = fread(fp, [he_w he_h*mul], form, ofds(cnt), info.ByteOrder)';
@@ -187,7 +188,7 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
             %ieee-le.l64
 
         imData=cell2mat(imData);
-        imData=reshape(imData,[he_h*mul,he_w,framenum]);
+        imData=reshape(imData,[he_h*mul,he_w,framenum]);%Nadav: Why is reshape needed if the values at each index of the cell array are already organized into hight by weight matrix.
         fclose(fp);
         display('Finished reading images')
 elseif strcmpi(ext,'.hdf5') || strcmpi(ext,'.h5');
