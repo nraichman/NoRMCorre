@@ -117,7 +117,7 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
         if bo
             for cnt = sframe:lastframe
                 %cnt;
-                fseek(fp,ofds(cnt),'bof');
+                fseek(fp,ofds(cnt),'bof');%Nadav: Not sure why this function is needed since the file pointer moves tot the position after the file read.
                 tmp1 = fread(fp, [he_w he_h*mul], form, 0, 'ieee-be')';%nadav:why not use the fread argument 'skip' instead of fseek.
                 imData{cnt-sframe+1}=cast(tmp1,form);
             end
