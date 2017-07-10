@@ -87,7 +87,7 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     idss=max(size(info(1).StripOffsets));%% - nadav: why is he taking the offset from the first image only?
     %nadav:seems this function is ment to check the number of strips per frame, assuming that all frames has the same number of strips.
 
-    ofds=zeros(numFrames);%nadav:Creates an unnecesary 2000X2000 matrix, while in practice only a 2000X1 is requiered.
+    ofds=zeros(1,numFrames);%nadav:Creates an unnecesary 2000X2000 matrix, while in practice only a 2000X1 is requiered.%Nadav 07/10/17: fixed
     for i=1:numFrames
         ofds(i)=info(i).StripOffsets(1);
         %ofds(i)
