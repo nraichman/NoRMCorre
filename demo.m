@@ -13,12 +13,12 @@ if ~exist(name,'file')  % download file if it doesn't exist in the directory
 end
 
 tic; Y = read_file(name); toc; % read the file (optional, you can also pass the path in the function instead of Y)
-Y = single(Y);                 % convert to single precision 
+Y = single(Y);                 % convert to single precision
 T = size(Y,ndims(Y));
 %Y = Y - min(Y(:));
 %% set parameters (first try out rigid motion correction)
 
-options_rigid = NoRMCorreSetParms('d1',size(Y,1),'d2',size(Y,2),'bin_width',50,'max_shift',15,'us_fac',50);
+options_rigid = NoRMCorreSetParms('d1',size(Y,1),'d2',size(Y,2),'bin_width',50,'max_shift',15,'us_fac',50, 'output_type', 'memmap');
 
 %% perform motion correction
 tic; [M1,shifts1,template1] = normcorre(Y,options_rigid); toc
@@ -47,7 +47,7 @@ figure;
     subplot(2,3,6); scatter(cM1,cM2); hold on; plot([0.9*min(cY),1.05*max(cM1)],[0.9*min(cY),1.05*max(cM1)],'--r'); axis square;
         xlabel('rigid corrected','fontsize',14,'fontweight','bold'); ylabel('non-rigid corrected','fontsize',14,'fontweight','bold');
     linkaxes([ax1,ax2,ax3],'xy')
-%% plot shifts        
+%% plot shifts
 
 shifts_r = horzcat(shifts1(:).shifts)';
 shifts_nr = cat(ndims(shifts2(1).shifts)+1,shifts2(:).shifts);

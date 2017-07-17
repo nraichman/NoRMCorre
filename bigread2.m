@@ -175,13 +175,14 @@ if strcmpi(ext,'.tiff') || strcmpi(ext,'.tif');
     %This whole if tree is very redundant because a simple if statment setting form to single in case
     %it is a double, would have solved this
     %Suggested implementation:
+
+    %for cnt = 1:lastframe-sframe
+    %   tmp1 = fread(fp, [he_w he_h*mul], form, ofds(cnt), info.ByteOrder)';
+                    %fileID , %dimensions of frame, %BitDepth, %offset, %ByteOrder
     %if strcmpi(form,'double')
     %  form = 'single'
     % ByteOrder = ieee-be.l64;
     %end
-    %for cnt = 1:lastframe-sframe
-    %   tmp1 = fread(fp, [he_w he_h*mul], form, ofds(cnt), info.ByteOrder)';
-                    %fileID , %dimensions of frame, %BitDepth, %offset, %ByteOrder
     %   imData{cnt}=cast(tmp1,form);
     %end
 
